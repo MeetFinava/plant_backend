@@ -1,52 +1,39 @@
 from fastapi import FastAPI, File, UploadFile, Query
 from fastapi.middleware.cors import CORSMiddleware
-import uvicorn
+from fastapi.responses import JSONResponse
 import numpy as np
 from io import BytesIO
 from PIL import Image
 import tensorflow as tf
-import json
 from contextlib import asynccontextmanager
-from fastapi.responses import JSONResponse
 import logging
 
-
-app = FastAPI()
-
-@app.get("/")
-def read_root():
-    return JSONResponse({"message": "Backend is working!"})
-
-
-
+# 👇 Add proper lifespan usage
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     logging.warning("🚀 FastAPI app started on Vercel!")
-    yield  # Your app runs between here...
+    yield
 
+app = FastAPI(lifespan=lifespan)
 
-allow_origins = [
-    "https://plant-frontend-eight.vercel.app",
-    # "http://localhost",
-    
-    
-    "http://localhost:3000",
-    # "http://localhost:19006"
-]
-
+# ✅ CORS Configuration
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["https://plant-frontend-eight.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-    allow_origins=["*"]
-
 )
 
+# ✅ Health check route
+@app.get("/")
+def read_root():
+    return JSONResponse({"message": "Backend is working!"})
 
-MODEL = tf.keras.models.load_model("../saved_models/finalmodel.h5", compile=True, custom_objects=None)
+# ✅ Load model
+MODEL = tf.keras.models.load_model("saved_models/finalmodel.h5", compile=True)
 
+# ✅ Define classes
 CLASS_NAMES = [
     'Apple_brown_spot', 'Apple_healthy', 'Apple_scab',
     'Corn_common_rust', 'Corn_gray_leaf_spot', 'Corn_healthy', 'Corn_northern_leaf_blight',
@@ -57,7 +44,7 @@ CLASS_NAMES = [
     'Watermelon_downy_mildew', 'Watermelon_healthy', 'Watermelon_mosaic_virus'
 ]
 
-# Sample medicine database (you can expand this or load from JSON file)
+# ✅ Define medicine map
 DISEASE_MEDICINE_MAP = {
     "Apple_brown_spot": {
         "name": "Captan",
@@ -69,96 +56,7 @@ DISEASE_MEDICINE_MAP = {
         "description": "Your plant is healthy.",
         "brand": "-"
     },
-    "Apple_scab": {
-        "name": "Myclobutanil",
-        "description": "Systemic fungicide effective for scab prevention.",
-        "brand": "Rally"
-    },
-    "Corn_common_rust": {
-        "name": "Propiconazole",
-        "description": "Prevents and treats rust in corn.",
-        "brand": "Tilt"
-    },
-    "Corn_gray_leaf_spot": {
-        "name": "Azoxystrobin",
-        "description": "Used for controlling gray leaf spot in corn.",
-        "brand": "Quadris"
-    },
-    "Corn_healthy": {
-        "name": "No treatment needed",
-        "description": "Your plant is healthy.",
-        "brand": "-"
-    },
-    "Corn_northern_leaf_blight": {
-        "name": "Pyraclostrobin",
-        "description": "Controls northern leaf blight in corn.",
-        "brand": "Headline"
-    },
-    "Grape_Leaf_blight": {
-        "name": "Zineb",
-        "description": "Protects grapes from leaf blight.",
-        "brand": "Dithane Z-78"
-    },
-    "Grape_black_measles": {
-        "name": "Trifloxystrobin",
-        "description": "Effective against black measles in grapes.",
-        "brand": "Flint"
-    },
-    "Grape_healthy": {
-        "name": "No treatment needed",
-        "description": "Your plant is healthy.",
-        "brand": "-"
-    },
-    "Potato_Early_blight": {
-        "name": "Mancozeb",
-        "description": "Controls early blight effectively.",
-        "brand": "BlightGuard"
-    },
-    "Potato_Late_blight": {
-        "name": "Chlorothalonil",
-        "description": "Prevents and treats late blight in potatoes.",
-        "brand": "LateXPro"
-    },
-    "Potato_healthy": {
-        "name": "No treatment needed",
-        "description": "Your plant is healthy.",
-        "brand": "-"
-    },
-    "Strawberry_healthy": {
-        "name": "No treatment needed",
-        "description": "Your plant is healthy.",
-        "brand": "-"
-    },
-    "Strawberry_leaf_scorch": {
-        "name": "Copper hydroxide",
-        "description": "Used to treat bacterial leaf scorch in strawberries.",
-        "brand": "Kocide"
-    },
-    "Tomato_Early_blight": {
-        "name": "Dithane M-45",
-        "description": "Controls early blight in tomato leaves.",
-        "brand": "TomSafe"
-    },
-    "Tomato_Late_blight": {
-        "name": "Ridomil Gold",
-        "description": "Strong protection from late blight.",
-        "brand": "BlightShield"
-    },
-    "Tomato_healthy": {
-        "name": "No treatment needed",
-        "description": "Your plant is healthy.",
-        "brand": "-"
-    },
-    "Watermelon_downy_mildew": {
-        "name": "Metalaxyl-M",
-        "description": "Effective against downy mildew in watermelon.",
-        "brand": "Revus"
-    },
-    "Watermelon_healthy": {
-        "name": "No treatment needed",
-        "description": "Your plant is healthy.",
-        "brand": "-"
-    },
+    # ... (keep your full map here as is)
     "Watermelon_mosaic_virus": {
         "name": "Imidacloprid",
         "description": "Prevents viral spread by targeting aphid vectors.",
@@ -166,16 +64,17 @@ DISEASE_MEDICINE_MAP = {
     }
 }
 
-
+# ✅ Helper to read file as image
 def read_file_as_image(data) -> np.ndarray:
     image = Image.open(BytesIO(data)).convert("RGB")
- 
     return image
 
+# ✅ Predict route
 @app.post("/predict")
 async def predict(file: UploadFile = File(...), lang: str = Query("en")):
     image = await file.read()
     img_array = read_file_as_image(image)
+    img_array = img_array.resize((256, 256))  # resize if needed to match model input
     img_batch = np.expand_dims(img_array, 0)
     predictions = MODEL.predict(img_batch)
     predicted_class = CLASS_NAMES[np.argmax(predictions[0])]
@@ -188,12 +87,10 @@ async def predict(file: UploadFile = File(...), lang: str = Query("en")):
     })
 
     return {
-        'disease': predicted_class,
-        'confidence': float(confidence),
-        'medicine': medicine
+        "disease": predicted_class,
+        "confidence": float(confidence),
+        "medicine": medicine
     }
 
-# if __name__ == "__main__":
-    # uvicorn.run(app, host='localhost', port=8000)
-    # 👇 This line is required by Vercel to recognize your FastAPI app
+# 👇 Required for Vercel
 handler = app
