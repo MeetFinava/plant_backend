@@ -6,8 +6,13 @@ from io import BytesIO
 from PIL import Image
 import tensorflow as tf
 import json
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
+
+@app.get("/")
+def read_root():
+    return JSONResponse({"message": "Backend is working!"})
 
 origins = [
     "http://localhost",
