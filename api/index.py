@@ -7,6 +7,7 @@ from PIL import Image
 import tensorflow as tf
 from contextlib import asynccontextmanager
 import logging
+import uvicorn
 
 # 👇 Add proper lifespan usage
 @asynccontextmanager
@@ -31,7 +32,7 @@ def read_root():
     return JSONResponse({"message": "Backend is working!"})
 
 # ✅ Load model
-MODEL = tf.keras.models.load_model("saved_models/finalmodel.h5", compile=True)
+MODEL = tf.keras.models.load_model("../saved_models/finalmodel.h5" ,compile=False,safe_mode=True,custom_objects=None)
 
 # ✅ Define classes
 CLASS_NAMES = [
@@ -93,4 +94,5 @@ async def predict(file: UploadFile = File(...), lang: str = Query("en")):
     }
 
 # 👇 Required for Vercel
+
 handler = app
