@@ -16,6 +16,7 @@ def read_root():
 
 origins = [
     "http://localhost",
+    "https://plant-frontend-eight.vercel.app/",
     "http://localhost:3000",
     "http://localhost:19006"
 ]
@@ -23,6 +24,7 @@ origins = [
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
+     allow_origins=["https://plant-frontend-eight.vercel.app/"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
