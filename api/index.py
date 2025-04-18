@@ -6,13 +6,24 @@ from io import BytesIO
 from PIL import Image
 import tensorflow as tf
 import json
+from contextlib import asynccontextmanager
 from fastapi.responses import JSONResponse
+import logging
+
 
 app = FastAPI()
 
 @app.get("/")
 def read_root():
     return JSONResponse({"message": "Backend is working!"})
+
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logging.warning("🚀 FastAPI app started on Vercel!")
+    yield  # Your app runs between here...
+
 
 allow_origins = [
     "https://plant-frontend-eight.vercel.app",
@@ -29,6 +40,8 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    allow_origins=["*"]
+
 )
 
 
