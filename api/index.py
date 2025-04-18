@@ -15,21 +15,22 @@ def read_root():
     return JSONResponse({"message": "Backend is working!"})
 
 allow_origins = [
-    "http://localhost",
-    "https://plant-frontend-eight.vercel.app/",
+    "https://plant-frontend-eight.vercel.app",
+    # "http://localhost",
+    
     
     "http://localhost:3000",
-    "http://localhost:19006"
+    # "http://localhost:19006"
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
-    allow_origins=["https://plant-frontend-eight.vercel.app/"], 
+    allow_origins=["https://plant-frontend-eight.vercel.app"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 MODEL = tf.keras.models.load_model("../saved_models/finalmodel.h5", compile=True, custom_objects=None)
 
@@ -179,5 +180,7 @@ async def predict(file: UploadFile = File(...), lang: str = Query("en")):
         'medicine': medicine
     }
 
-if __name__ == "__main__":
-    uvicorn.run(app, host='localhost', port=8000)
+# if __name__ == "__main__":
+    # uvicorn.run(app, host='localhost', port=8000)
+    # 👇 This line is required by Vercel to recognize your FastAPI app
+handler = app
