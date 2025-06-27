@@ -1,0 +1,16 @@
+{
+    "Potato___Early_blight": "Use fungicides such as Mancozeb or Chlorothalonil. Remove infected leaves and avoid overhead watering.",
+    "Potato___Late_blight": "Apply fungicides containing Metalaxyl. Remove affected plants and improve air circulation. Do not compost infected material.",
+    "Potato___healthy": "No treatment necessary. Maintain good agricultural practices to keep plants healthy.",
+
+    "Tomato___Bacterial_spot": "Apply copper-based bactericides. Avoid working in wet fields to reduce spread.",
+    "Tomato___Early_blight": "Spray fungicides like Azoxystrobin. Rotate crops yearly and use disease-free seeds.",
+    "Tomato___Late_blight": "Use fungicides with chlorothalonil or mancozeb. Destroy infected plants immediately.",
+    "Tomato___Leaf_Mold": "Improve ventilation. Use fungicides such as mancozeb or copper oxychloride.",
+    "Tomato___healthy": "No treatment necessary. Maintain good irrigation and spacing practices.",
+
+    "Corn_(maize)___Common_rust_": "Apply fungicides like azoxystrobin if infection is severe. Choose resistant hybrids.",
+    "Corn_(maize)___Northern_Leaf_Blight": "Use fungicides such as propiconazole. Ensure crop rotation and field sanitation.",
+    "Corn_(maize)___Cercospora_leaf_spot Gray_leaf_spot": "Avoid overhead irrigation. Apply fungicides and plant resistant hybrids.",
+    "Corn_(maize)___healthy": "No treatment necessary. Maintain crop rotation and clean field residue."
+}
